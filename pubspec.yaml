@@ -55,6 +55,12 @@ dev_dependencies:
   mockito: ^5.4.2
   build_runner: ^2.4.6
   bloc_test: ^9.1.5
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/icon.jpeg"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
