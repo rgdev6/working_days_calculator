@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "../../utils/date_utils.dart";
 import "../../utils/uf.dart";
+import "../calculation_model.dart";
 import "../cubit/calculator_cubit.dart";
 import "../widgets/brazil_states_dropdown_button.dart";
 import "../widgets/date_field.dart";
@@ -10,11 +11,14 @@ import "../widgets/date_to_update_segmented_button.dart";
 import "../widgets/increment_panel.dart";
 
 class CalculatorView extends StatelessWidget {
-  CalculatorView({super.key});
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   final initialDateController = TextEditingController();
+
   final lastDateController = TextEditingController();
-  DateToUpdate _dateToIncrement = DateToUpdate.ending;
+
+  DateToUpdate _dateToUpdate = DateToUpdate.Final;
+
   BrazilStates _currentState = BrazilStates.SP;
 
   @override
@@ -33,66 +37,83 @@ class CalculatorView extends StatelessWidget {
                 return Center(
                   child: Column(
                     children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Flexible(
-                            child: DateField(
-                              textEditingController: initialDateController,
-                              labelText: "Data Inicial",
-                              date: DateTime.now(),
+                      BlocListener<CalculatorCubit, CalculationModel>(
+                        listener: (context, state) {
+                          initialDateController.text = state.formatInitialDate();
+                          lastDateController.text = state.formatFinalDate();
+                        },
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Flexible(
+                              child: DateField(
+                                textEditingController: initialDateController,
+                                labelText: "Data Inicial",
+                                date: DateTime.now(),
+                                onIncrement: () => context
+                                    .read<CalculatorCubit>()
+                                    .incrementInitialDate(),
+                                onDecrement: () => context
+                                    .read<CalculatorCubit>()
+                                    .decrementInitialDate(),
+                                onDateSelect: () => context
+                                    .read<CalculatorCubit>()
+                                    .calculateByDateRange(
+                                        parse(initialDateController.text),
+                                        parse(lastDateController.text)),
+                              ),
                             ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Flexible(
-                            child: DateField(
-                              textEditingController: lastDateController,
-                              labelText: "Data Final",
-                              date: DateTime.now(),
+                            const SizedBox(
+                              width: 10,
                             ),
-                          ),
-                        ],
+                            Flexible(
+                              child: DateField(
+                                  textEditingController: lastDateController,
+                                  labelText: "Data Final",
+                                  date: DateTime.now(),
+                                  onIncrement: () => context
+                                      .read<CalculatorCubit>()
+                                      .incrementFinalDate(),
+                                  onDecrement: () => context
+                                      .read<CalculatorCubit>()
+                                      .decrementFinalDate(),
+                                  onDateSelect: () => context
+                                      .read<CalculatorCubit>()
+                                      .calculateByDateRange(
+                                          parse(initialDateController.text),
+                                          parse(lastDateController.text))),
+                            ),
+                          ],
+                        ),
                       ),
                       const Spacer(),
-                      BlocBuilder<CalculatorCubit, ({int days, String holidays})>(
+                      BlocBuilder<CalculatorCubit, CalculationModel>(
                           builder: (context, state) {
                         return Column(
                           children: [
                             IncrementPanel(
-                              counter: state.days,
+                              counter: state.differenceInDays,
                               onIncrement: () {
-                                if (_dateToIncrement == DateToUpdate.initial) {
-                                  var date = parse(initialDateController.text);
-                                  date = date.add(const Duration(days: 1));
-                                  initialDateController.text  = format(date);
+                                if (_dateToUpdate == DateToUpdate.Final) {
+                                  context
+                                      .read<CalculatorCubit>()
+                                      .incrementFinalDate();
                                 } else {
-                                  var date = parse(lastDateController.text);
-                                  date = date.add(const Duration(days: 1));
-                                  lastDateController.text  = format(date);
+                                  context
+                                      .read<CalculatorCubit>()
+                                      .incrementInitialDate();
                                 }
-                                context
-                                    .read<CalculatorCubit>()
-                                    .calculateDifference(parse(initialDateController.text),
-                                    parse(lastDateController.text),
-                                    state: BrazilStates.SP);
                               },
                               onDecrement: () {
-                                if (_dateToIncrement == DateToUpdate.initial) {
-                                  var date = parse(initialDateController.text);
-                                  date.subtract(const Duration(days: 1));
-                                  initialDateController.text  = format(date);
+                                if (_dateToUpdate == DateToUpdate.Final) {
+                                  context
+                                      .read<CalculatorCubit>()
+                                      .decrementFinalDate();
                                 } else {
-                                  var date = parse(lastDateController.text);
-                                  date = date.subtract(const Duration(days: 1));
-                                  lastDateController.text  = format(date);
+                                  context
+                                      .read<CalculatorCubit>()
+                                      .decrementInitialDate();
                                 }
-                                context
-                                    .read<CalculatorCubit>()
-                                    .calculateDifference(parse(initialDateController.text),
-                                    parse(lastDateController.text),
-                                    state: BrazilStates.SP);
                               },
                             ),
                           ],
@@ -100,32 +121,29 @@ class CalculatorView extends StatelessWidget {
                       }),
                       Column(
                         children: [
-                          DateToUpdateSegmentedButton(onSelectionChanged: (dates) {
-                            _dateToIncrement = dates.first;
-                          },),
-                          const SizedBox(height: 20,),
+                          DateToUpdateSegmentedButton(
+                            onSelectionChanged: (dates) {
+                              _dateToUpdate = dates.first;
+                            },
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
                           BrazilStatesDropdownButton(
                             onSelectionChanged: (state) {
                               _currentState = state;
+                              context
+                                  .read<CalculatorCubit>()
+                                  .updateBrazilState(state);
                             },
                           ),
                         ],
                       ),
-                      const Spacer(),
-                      BlocBuilder<CalculatorCubit, ({int days, String holidays})>(
-                      builder: (context, state) {
+                      BlocBuilder<CalculatorCubit, CalculationModel>(
+                          builder: (context, state) {
                         return Text(state.holidays);
                       }),
-                      FloatingActionButton.extended(
-                          onPressed: () {
-                            context
-                                .read<CalculatorCubit>()
-                                .calculateDifference(parse(initialDateController.text),
-                                parse(lastDateController.text),
-                                state: BrazilStates.SP);
-                          },
-                          icon: const Icon(Icons.calculate),
-                          label: const Text("Calcular diferença"))
+                      const Spacer(),
                     ],
                   ),
                 );
@@ -137,5 +155,3 @@ class CalculatorView extends StatelessWidget {
     );
   }
 }
-
-

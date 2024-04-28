@@ -9,11 +9,17 @@ class DateField extends StatefulWidget {
       {super.key,
       required this.textEditingController,
       required this.labelText,
-      required this.date});
+      required this.date,
+      required this.onIncrement,
+      required this.onDecrement,
+      required this.onDateSelect});
 
   final TextEditingController textEditingController;
   final String labelText;
   final DateTime date;
+  final VoidCallback onIncrement;
+  final VoidCallback onDecrement;
+  final VoidCallback onDateSelect;
 
   @override
   State<DateField> createState() => _DateFieldState();
@@ -45,8 +51,10 @@ class _DateFieldState extends State<DateField> {
           inputFormatters: [DateInputFormatter()],
           keyboardType: TextInputType.datetime,
           onChanged: (value) {
-            //TODO adapt
             if (value.isEmpty) return;
+            if (errorText() == null) {
+              widget.onDateSelect();
+            }
             setState(() {});
           },
           decoration: InputDecoration(
@@ -60,42 +68,21 @@ class _DateFieldState extends State<DateField> {
                   color: Theme.of(context).colorScheme.primary,
                 ),
                 onPressed: () async {
-                  var selectedDate = await selectDate(context,
-                      parse(widget.textEditingController.text));
-                  widget.textEditingController.text =
-                      format(selectedDate);
+                  var selectedDate = await selectDate(
+                      context, parse(widget.textEditingController.text));
+                  widget.textEditingController.text = format(selectedDate);
+                  widget.onDateSelect();
                 },
               )),
         ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  String date = widget.textEditingController.text;
-                  var incrementedDate = parse(date).subtract(const Duration(days: 1));
-                  widget.textEditingController.text = format(incrementedDate);
-                  setState(() {});
-                },
-                label: const Icon(Icons.exposure_minus_1),
-                icon: const Icon(Icons.calendar_today),
-              ),
-              const Spacer(),
-              ElevatedButton.icon(
-                onPressed: () {
-                  String date = widget.textEditingController.text;
-                  var incrementedDate = parse(date).add(const Duration(days: 1));
-                  date = format(incrementedDate);
-                  setState(() {
-                    widget.textEditingController.text = format(incrementedDate);
-                  });
-                },
-                label: const Icon(Icons.plus_one),
-                icon: const Icon(Icons.calendar_today),
-              ),
-            ],
-          ),
+        Row(
+          children: [
+            IncrementDateButton.minus(
+              onPressed: widget.onDecrement,
+            ),
+            const Spacer(),
+            IncrementDateButton.plus(onPressed: widget.onIncrement),
+          ],
         )
       ],
     );
@@ -119,9 +106,8 @@ class DateInputFormatter extends TextInputFormatter {
     if (newValue.text.isEmpty) {
       return TextEditingValue(
         text: newValue.text,
-        selection: TextSelection.collapsed(offset: 0),
+        selection: const TextSelection.collapsed(offset: 0),
       );
-
     }
     if (newValue.text.length < oldValue.text.length) {
       if (oldValue.text.endsWith("/")) {

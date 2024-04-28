@@ -17,26 +17,21 @@ class IncrementPanel extends StatefulWidget {
 }
 
 class _IncrementPanelState extends State<IncrementPanel> {
-  Color _backgroundColor = Colors.blue;
   double _containerSize = 120.0; // Initial container size
 
   void _handleIncrement(bool isIncrement) {
     setState(() {
       if (isIncrement) {
-        //widget.counter++;
         widget.onIncrement();
       } else {
-        //widget.counter--;
         widget.onDecrement();
       }
-      _backgroundColor = Colors.green;
       _containerSize =
           150.0; // Increase the container size during the transition
     });
 
     Future.delayed(const Duration(milliseconds: 200), () {
       setState(() {
-        _backgroundColor = Colors.blue;
         _containerSize =
             120.0; // Return the container size to its original value
       });
@@ -59,7 +54,7 @@ class _IncrementPanelState extends State<IncrementPanel> {
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 100),
               decoration: BoxDecoration(
-                color: _backgroundColor,
+                color: Colors.indigo,
                 borderRadius: BorderRadius.circular(8.0),
               ),
               margin: const EdgeInsets.all(8),

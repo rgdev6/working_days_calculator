@@ -1,9 +1,9 @@
 import "package:flutter/material.dart";
 
-enum DateToUpdate { initial, ending }
+enum DateToUpdate {Initial, Final}
 
 class DateToUpdateSegmentedButton extends StatefulWidget {
-  const DateToUpdateSegmentedButton({super.key, this.datesView = DateToUpdate.ending, this.onSelectionChanged});
+  const DateToUpdateSegmentedButton({super.key, this.datesView = DateToUpdate.Final, this.onSelectionChanged});
 
   final DateToUpdate datesView;
   final void Function(Set<DateToUpdate>)? onSelectionChanged;
@@ -19,11 +19,11 @@ class _DateToUpdateSegmentedButtonState extends State<DateToUpdateSegmentedButto
     return SegmentedButton<DateToUpdate>(
       segments: const <ButtonSegment<DateToUpdate>>[
         ButtonSegment<DateToUpdate>(
-            value: DateToUpdate.initial,
+            value: DateToUpdate.Initial,
             label: Text("Data Inicial"),
             icon: Icon(Icons.date_range)),
         ButtonSegment<DateToUpdate>(
-            value: DateToUpdate.ending,
+            value: DateToUpdate.Final,
             label: Text("Data Final"),
             icon: Icon(Icons.date_range)),
       ],
