@@ -8,6 +8,7 @@ import "../widgets/brazil_states_dropdown_button.dart";
 import "../widgets/date_field.dart";
 
 import "../widgets/date_to_update_segmented_button.dart";
+import "../widgets/historyBottomSheet.dart";
 import "../widgets/increment_panel.dart";
 
 class CalculatorView extends StatelessWidget {
@@ -24,9 +25,24 @@ class CalculatorView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text("Calculadora de dias úteis"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.history),
+            tooltip: 'Exibir histórico de calculos',
+            onPressed: () {
+              scaffoldKey.currentState?.showBottomSheet(
+                (BuildContext context) {
+                  var history =
+                      context.read<CalculatorCubit>().history.reversed.toList();
+                  return HistoryBottomSheet(calculationHistory: history);
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
