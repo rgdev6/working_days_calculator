@@ -438,7 +438,7 @@ List<({DateTime holidayDate, String holidayName})> listHolidaysByStateAndDate(
       //TODO feriado calculado
       if (month == DateTime.april) {
         holidays.add((
-          holidayDate: DateTime.parse("$year-$month-07"),
+          holidayDate: DateTime.parse("$year-0$month-07"),
           holidayName: "07/04 - Sexta-feira da Paixão",
         ));
       } else if (month == DateTime.july) {
