@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 
-import "../calculation_model.dart";
+import '../model/calculation_model.dart';
 
 class HistoryBottomSheet extends StatelessWidget {
   const HistoryBottomSheet({super.key, required this.calculationHistory});

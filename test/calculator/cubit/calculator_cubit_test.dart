@@ -1,6 +1,6 @@
 import "package:bloc_test/bloc_test.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:working_days_calculator/calculator/calculation_model.dart";
+import 'package:working_days_calculator/calculator/model/calculation_model.dart';
 import "package:working_days_calculator/calculator/calculator.dart";
 import "package:working_days_calculator/utils/uf.dart";
 

@@ -1,5 +1,6 @@
-import "../utils/date_utils.dart";
-import "../utils/uf.dart";
+import "../../utils/date_utils.dart";
+import "../../utils/uf.dart";
+import "holiday_model.dart";
 
 class CalculationModel {
   CalculationModel({
@@ -13,7 +14,7 @@ class CalculationModel {
   final DateTime initialDate;
   final DateTime finalDate;
   final int differenceInDays;
-  final String holidays;
+  final List<HolidayModel> holidays;
   final BrazilStates brazilState;
 
   String formatInitialDate() => format(initialDate);
@@ -23,7 +24,7 @@ class CalculationModel {
     DateTime? initialDate,
     DateTime? finalDate,
     int? differenceInDays,
-    String? holidays,
+    final List<HolidayModel>? holidays,
     BrazilStates? brazilState,
   }) {
     return CalculationModel(

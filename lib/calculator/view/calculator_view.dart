@@ -2,13 +2,13 @@ import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "../../utils/date_utils.dart";
 import "../../utils/uf.dart";
-import "../calculation_model.dart";
+import "../model/calculation_model.dart";
 import "../cubit/calculator_cubit.dart";
 import "../widgets/brazil_states_dropdown_button.dart";
 import "../widgets/date_field.dart";
 
 import "../widgets/date_to_update_segmented_button.dart";
-import "../widgets/historyBottomSheet.dart";
+import "../widgets/history_bottom_sheet.dart";
 import "../widgets/increment_panel.dart";
 
 class CalculatorView extends StatelessWidget {
@@ -31,7 +31,7 @@ class CalculatorView extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.history),
-            tooltip: 'Exibir histórico de calculos',
+            tooltip: "Exibir histórico de calculos",
             onPressed: () {
               scaffoldKey.currentState?.showBottomSheet(
                 (BuildContext context) {
@@ -103,38 +103,32 @@ class CalculatorView extends StatelessWidget {
                         ),
                       ),
                       const Spacer(),
-                      BlocBuilder<CalculatorCubit, CalculationModel>(
-                          builder: (context, state) {
-                        return Column(
-                          children: [
-                            IncrementPanel(
-                              counter: state.differenceInDays,
-                              onIncrement: () {
-                                if (_dateToUpdate == DateToUpdate.Final) {
-                                  context
-                                      .read<CalculatorCubit>()
-                                      .incrementFinalDate();
-                                } else {
-                                  context
-                                      .read<CalculatorCubit>()
-                                      .incrementInitialDate();
-                                }
-                              },
-                              onDecrement: () {
-                                if (_dateToUpdate == DateToUpdate.Final) {
-                                  context
-                                      .read<CalculatorCubit>()
-                                      .decrementFinalDate();
-                                } else {
-                                  context
-                                      .read<CalculatorCubit>()
-                                      .decrementInitialDate();
-                                }
-                              },
-                            ),
-                          ],
-                        );
-                      }),
+                      Builder(
+                        builder: (context) {
+                          final calculatorCubit = context.watch<CalculatorCubit>();
+                          return Column(
+                            children: [
+                              IncrementPanel(
+                                counter: calculatorCubit.state.differenceInDays,
+                                onIncrement: () {
+                                  if (_dateToUpdate == DateToUpdate.Final) {
+                                    calculatorCubit.incrementFinalDate();
+                                  } else {
+                                    calculatorCubit.incrementInitialDate();
+                                  }
+                                },
+                                onDecrement: () {
+                                  if (_dateToUpdate == DateToUpdate.Final) {
+                                    calculatorCubit.decrementFinalDate();
+                                  } else {
+                                    calculatorCubit.decrementInitialDate();
+                                  }
+                                },
+                              ),
+                            ],
+                          );
+                        }
+                      ),
                       Column(
                         children: [
                           DateToUpdateSegmentedButton(
@@ -157,7 +151,19 @@ class CalculatorView extends StatelessWidget {
                       ),
                       BlocBuilder<CalculatorCubit, CalculationModel>(
                           builder: (context, state) {
-                        return Text(state.holidays);
+                        return Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: SingleChildScrollView(
+                              child: Column(
+                                children: [
+                                  for (var holiday in state.holidays)
+                                    Text("${holiday.formatDDMM()} - ${holiday.name} - ${holiday.level}")
+                                ],
+                              ),
+                            ),
+                          )
+                        );
                       }),
                       const Spacer(),
                     ],
