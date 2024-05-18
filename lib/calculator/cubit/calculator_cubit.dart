@@ -3,6 +3,7 @@ import "package:get_it/get_it.dart";
 
 import "../../utils/date_utils.dart";
 import "../../utils/extensions/date_extensions.dart";
+import "../../utils/params.dart";
 import "../../utils/uf.dart";
 import "../model/calculation_model.dart";
 import "../model/holiday_model.dart";
@@ -62,8 +63,9 @@ class CalculatorCubit extends Cubit<CalculationModel> {
         .getYearsRange(calculation.finalDate);
 
     for (var year = yearsRange.first; year <= yearsRange.last; ++year) {
-      var holidays = await holidayRepository.fetchData(
-          year: year, state: BrazilStates.SP.name);
+      final params = FeriadosNacionaisParams(
+          year: year, state: calculation.brazilState.name);
+      var holidays = await holidayRepository.fetchData(params);
       holidaysList.addAll(holidays);
     }
     var result = calculateWorkingDays(

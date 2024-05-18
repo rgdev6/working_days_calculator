@@ -1,12 +1,15 @@
 import "package:get_it/get_it.dart";
 import "package:http/http.dart";
 
+import "../../utils/params.dart";
 import "../../utils/uri.dart";
+import "service.dart";
 
-class HolidayServiceApi {
+class HolidayServiceApi implements ServiceApi<FeriadosNacionaisParams> {
   final Client client = GetIt.I.get<Client>();
 
-  Future<Response> getHolidays({required int year, String state = ""}) {
-    return client.get(getFeriadosNacionaisURI(year: year, state: state));
+  @override
+  Future<Response> getAll(FeriadosNacionaisParams params) {
+    return client.get(getFeriadosNacionaisURI(params));
 }
 }
